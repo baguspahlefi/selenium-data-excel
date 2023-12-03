@@ -16,7 +16,7 @@ sheetRange = wb['Sheet1']
 
 driver = webdriver.Firefox()
 
-driver.get("https://e-katalog.lkpp.go.id/v3/katalog/produk/create/76086456") 
+driver.get("https://e-katalog.lkpp.go.id/v3/katalog/produk/create") 
 actions = ActionChains(driver)
 driver.maximize_window()
 driver.implicitly_wait(10)
@@ -29,38 +29,50 @@ driver.find_element('name','username').send_keys(userName)
 driver.find_element('name','password').send_keys(password)
 driver.find_element('id','btnLoginPenyedia').click()
 
-WebDriverWait(driver, 10).until(lambda x: x.find_element('id', "namaProduk"))
 
 i = 2
 
 while i <= len(sheetRange['A']):
-    name = sheetRange['A' + str(i)].value
-    inpNmr = sheetRange['A' + str(i)].value
+    judulEtalase = sheetRange['A' + str(i)].value
+    name = sheetRange['B' + str(i)].value
+    inpNmr = sheetRange['B' + str(i)].value
     kbki = sheetRange['F' + str(i)].value
 
 
-    driver.find_element('id','namaProduk').send_keys(name)
+    etalase_produk = WebDriverWait(driver, 20).until(
+    EC.element_to_be_clickable((By.ID, 'select2-komoditas-container'))
+    )
+    etalase_produk.click()
+    driver.find_element('xpath','//input[contains(@type,"search")]').send_keys(judulEtalase)
+    actions.key_down(Keys.ARROW_DOWN).key_up(Keys.ARROW_DOWN).perform()
+    actions.key_down(Keys.ENTER).key_up(Keys.ENTER).perform()
+
+
+    pengumuman = driver.find_element('id','select2-usulan-container')
+    webdriver.ActionChains(driver).move_to_element(pengumuman).click(pengumuman).perform()
+    driver.find_element('xpath','//input[contains(@type,"search")]').send_keys(judulEtalase)
+    actions.key_down(Keys.ARROW_DOWN).key_up(Keys.ARROW_DOWN).perform()
+    actions.key_down(Keys.ENTER).key_up(Keys.ENTER).perform()
+
+    driver.find_element('id','save').click
+
+
+    WebDriverWait(driver, 20).until(
+    EC.element_to_be_clickable((By.ID, 'snamaProduk'))
+    ).send_keys(name)
     driver.find_element('id','inpNmr').send_keys(inpNmr)
     time.sleep(2)
-    
 
     WebDriverWait(driver, 20).until(
     EC.element_to_be_clickable((By.ID, 'select2-selectDiproduksiDiIndonesia-container'))
     ).click()
-
     actions.key_down(Keys.ARROW_DOWN).key_up(Keys.ARROW_DOWN).perform()
-
-    # Tekan tombol Enter untuk memilih opsi yang sedang di-highlight
     actions.key_down(Keys.ENTER).key_up(Keys.ENTER).perform()
 
     actions.key_down(Keys.ARROW_DOWN).key_up(Keys.ARROW_DOWN).perform()
-
-    # Tekan tombol Enter untuk memilih opsi yang sedang di-highlight
     actions.key_down(Keys.ENTER).key_up(Keys.ENTER).perform()
 
     actions.key_down(Keys.ARROW_DOWN).key_up(Keys.ARROW_DOWN).perform()
-
-    # Tekan tombol Enter untuk memilih opsi yang sedang di-highlight
     actions.key_down(Keys.ENTER).key_up(Keys.ENTER).perform()
 
     WebDriverWait(driver, 20).until(
@@ -85,7 +97,7 @@ while i <= len(sheetRange['A']):
     WebDriverWait(driver, 20).until(
     EC.element_to_be_clickable((By.ID, 'select2-selectBahanBakuDalamNegeri-container'))
     ).click()
-    time.sleep(2)
+
     actions.key_down(Keys.ARROW_DOWN).key_up(Keys.ARROW_DOWN).perform()
 
     # Tekan tombol Enter untuk memilih opsi yang sedang di-highlight
@@ -144,15 +156,10 @@ while i <= len(sheetRange['A']):
         EC.element_to_be_clickable((By.XPATH, xpath))
     ).click()
 
-    time.sleep(5)
-    
-
     
 
     time.sleep(2)
     i = i+1
-
-    input("Press Enter to close the browser...")
 
     # Tutup peramban setelah selesai
     driver.quit()
